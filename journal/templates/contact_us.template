@@ -1,0 +1,12 @@
+{# _texla_api/templates/contact_us.template_ #}
+
+{% extends "layout.template" %}
+{% block title %}TeXLa - Contact us{% endblock %}
+{% block container %}
+<div class="row center-block">
+<h2>Contact us</h2>
+<p>You can get in touch with us in the TeXLa Developers channel on <a href=https://telegram.me/joinchat/Bh3MuwXWdQUUwiBNNgUusw>Telegram </a>.
+</p>
+<p> We are traking the development of TeXLa on <a href=https://phabricator.kde.org/project/board/114/>phabricator</a>
+and on <a href=https://github.com/WikiToLearn/texla> GitHub </a>. </p>
+{% endblock %}

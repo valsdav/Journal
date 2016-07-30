@@ -1,0 +1,34 @@
+{# _texla_api/templates/collection_index.template_ #}
+
+{% extends "layout.template" %}
+{% block title %}Journal{% endblock %}
+{% block container %}
+<div class="row row-eq-height center-block">
+
+    <div class="col-md-6">
+        <textarea type="text" class="form-control" rows="10"
+        id="post_text" name="post_text"
+        placeholder="Post">
+        </textarea>
+        <textarea type="text" class="form-control" rows="1"
+        id="category" name="category" placeholder="Category">
+        </textarea>
+
+
+    <button class="btn btn-success pull-right" id="sendButton">
+        <i class="fa fa-exchange" aria-hidden="true">
+        </i>&nbsp;Send</button>
+    </div>
+
+    <div class="col-md-6">
+        <div id="show-data"> </div>
+    </div>
+
+
+</div>
+
+<script type=text/javascript>
+  $CURRENT_COLLECTION = "{{request.path}}"
+</script>
+
+{% endblock %}

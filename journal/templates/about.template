@@ -1,0 +1,21 @@
+{# _texla_api/templates/about.template_ #}
+
+{% extends "layout.template" %}
+{% block title %}TeXLa - About{% endblock %}
+{% block container %}
+<div class="row center-block">
+
+<h1> TeXLa 0.1 </h1>
+<h2>What's TeXLa?</h2>
+<p>TeXLa is a LaTeX parser and converter developed by WikiToLearn project.</p>
+<h2>Developers</h2>
+<p> <li>The mantainer of the software is Davide Valsecchi (@valsdav on Telegram).</li>
+<li>The mantainer of the web interface is Alessandro Tundo (@tunale on Telegram)</li>
+
+<br>Contributors:
+<li>Filippo Quarenghi (@phil123)</li>
+<li>Irene Cortinovis (@pipsin)</li>
+<li>Paolo Bassi (@pbassi)</li>
+<li>Riccardo Iaconelli (@ruphy)</li>
+<li>Dario Mapelli (@DarioMapelli)</li></p>
+{% endblock %}
