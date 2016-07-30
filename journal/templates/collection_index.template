@@ -8,17 +8,27 @@
     <div class="col-md-6">
         <textarea type="text" class="form-control" rows="10"
         id="post_text" name="post_text"
-        placeholder="Post">
-        </textarea>
+        placeholder="Post"></textarea>
         <textarea type="text" class="form-control" rows="1"
-        id="category" name="category" placeholder="Category">
-        </textarea>
+        id="category" name="category"
+        placeholder="Category"></textarea>
 
-
-    <button class="btn btn-success pull-right" id="sendButton">
-        <i class="fa fa-exchange" aria-hidden="true">
-        </i>&nbsp;Send</button>
+    <div class="row">
+        <button class="btn btn-success pull-right" id="sendButton">
+            <i class="fa fa-exchange" aria-hidden="true">
+            </i>&nbsp;Send</button>
     </div>
+    <div class="rows">
+        <div id="tags">
+            <ul class="list-inline">
+                {% for tag in tags %}
+                <li><a class="btn btn-primary tag" href="#" role="button">{{tag}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    </div>
+
 
     <div class="col-md-6">
         <div id="show-data"> </div>

@@ -7,6 +7,7 @@ import logging
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from bson.json_util import dumps
+from bson.son import SON
 
 #init the db client
 client = MongoClient("localhost", 27017)
@@ -27,9 +28,10 @@ def  add_post(collection):
     text = data['text']
     user = data['user']
     category = data['category']
-    oid = addPost(text,user,collection, category)
+    oid, tags = addPost(text,user,collection, category)
     app.logger.info('Added post: ' + oid+' '+ text[:20])
-    return jsonify({"post_created": oid})
+    return jsonify({"post_created": oid,
+                    "tags": tags})
 
 @app.route('/journal/<collection>', methods=['DELETE'])
 def drop_collection(collection):
@@ -38,7 +40,18 @@ def drop_collection(collection):
 
 @app.route('/journal/<collection>/info', methods=['GET'])
 def get_collection_info(collection):
-    pass
+    return jsonify(count_tags(collection))
+
+def count_tags(collection):
+    pipeline = [
+        {"$unwind": "$tags"},
+        {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+        {"$sort": SON([("count", -1), ("_id", -1)])}
+    ]
+    result = {}
+    for t in db[collection].aggregate(pipeline):
+        result[t['_id']] = t['count']
+    return result
 
 
 @app.route('/journal/<collection>/query', methods=['POST'])
@@ -111,4 +124,4 @@ def addPost(text, user, collection, category):
             post['tags'].append(t.group('tag'))
     #inserting in the dictionary
     oid = db[collection].insert_one(post).inserted_id
-    return str(oid)
+    return (str(oid),post['tags'])
