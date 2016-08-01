@@ -1,9 +1,9 @@
 $(document).ready(function () {
-    $('.tag').click(function () {
-        var tag = $(this).text();
+    $('.tag').click(function(){
+        var tag = $(this).attr("tag");
         var post_text = $('#post_text')
         post_text.val(post_text.val() + ' #'+ tag);
-        post_text.focus()
+        post_text.focus();
     });
     $('#sendButton').click(function () {
         var showData = $('#show-data');
@@ -49,15 +49,24 @@ $(document).ready(function () {
                     var tag_list = $('#tags-list');
                     for (i in data.tags){
                         tg = data.tags[i];
-                        if (collection_tags.indexOf(tg)<0){
-                            collection_tags.push(tg);
+                        if (!(tg in collection_tags)){
+                            collection_tags[tg] = 1
                             tag_list.append('<li><a class="btn btn-primary tag"'+
-                            'href="#" role="button">'+ tg +'</a></li>');
+                            'href="#" role="button" tag="'+tg + '">'+ tg +
+                            '<span class="badge" tag="'+tg +'">'+1+ '</span></a></li>');
+                            $('a[tag="'+tg+'"]').click(function(){
+                                var tag = $(this).attr("tag");
+                                var post_text = $('#post_text')
+                                post_text.val(post_text.val() + ' #'+ tag);
+                                post_text.focus();
+                            });
+                        }else{
+                            var badge = $("span[tag='"+ tg+ "']");
+                            badge.text(parseInt(badge.text())+1);
                         }
                     }
                 }
             });
         }
     });
-
 });

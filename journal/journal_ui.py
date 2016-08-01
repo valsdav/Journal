@@ -4,6 +4,8 @@ from journal import journal_api as japi
 
 @app.route('/journal/<collection>', methods=['GET'])
 def welcome(collection):
+    tags = japi.count_tags(collection)
     return render_template('collection_index.template',
-            tags=sorted(list((japi.count_tags(collection).keys()))),
+            tags= tags,
+            tags_dict= dict(tags),
             docs= japi.get_last_posts(collection, 10))

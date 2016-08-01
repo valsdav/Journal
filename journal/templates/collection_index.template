@@ -5,7 +5,7 @@
 {% block container %}
 <div class="row row-eq-height center-block">
 
-    <div class="col-md-6">
+    <div class="col-md-5">
         <textarea type="text" class="form-control" rows="10"
         id="post_text" name="post_text"
         placeholder="Post"></textarea>
@@ -21,13 +21,17 @@
         <div class="row">
             <ul class="list-inline" id="tags-list">
                 {% for tag in tags %}
-                <li><a class="btn btn-primary tag" href="#" role="button">{{tag}}</a></li>
+                <li><a class="btn btn-primary tag" href="#"
+                    role="button" tag="{{tag}}">{{tag}}
+                    <span class="badge" tag="{{tag}}">{{tags[tag]}}</span>
+                </a></li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-7">
+
         <div class="list-group" id="show-data">
             {% for doc in docs%}
             <div class="list-group-item row">
@@ -64,7 +68,7 @@
 
     <script type=text/javascript>
     var CURRENT_COLLECTION = "{{request.path}}"
-    var collection_tags = {{tags}}
+    var collection_tags = {{tags_dict}}
     </script>
 
     {% endblock %}

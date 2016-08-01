@@ -8,7 +8,7 @@ from journal.queries import *
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from bson.json_util import dumps
-from bson.son import SON
+from collections import OrderedDict
 
 #init the db client
 client = MongoClient("localhost", 27017)
@@ -47,9 +47,9 @@ def count_tags(collection):
     pipeline = [
         {"$unwind": "$tags"},
         {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
-        {"$sort": SON([("count", -1), ("_id", -1)])}
+        {"$sort": OrderedDict([("count", -1), ("_id", -1)])}
     ]
-    result = {}
+    result = OrderedDict()
     for t in db[collection].aggregate(pipeline):
         result[t['_id']] = t['count']
     return result
