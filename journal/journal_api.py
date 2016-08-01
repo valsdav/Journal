@@ -40,7 +40,8 @@ def drop_collection(collection):
 
 @app.route('/journal/<collection>/info', methods=['GET'])
 def get_collection_info(collection):
-    return jsonify(count_tags(collection))
+    return jsonify({"tags":count_tags(collection),
+                    "categories": count_categories(collection)})
 
 def count_tags(collection):
     '''This function returns the tags used in the collection'''
@@ -48,6 +49,17 @@ def count_tags(collection):
         {"$unwind": "$tags"},
         {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
         {"$sort": OrderedDict([("count", -1), ("_id", -1)])}
+    ]
+    result = OrderedDict()
+    for t in db[collection].aggregate(pipeline):
+        result[t['_id']] = t['count']
+    return result
+
+def count_categories(collection):
+    '''This function returns the categories used in the collection'''
+    pipeline = [
+        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}}
     ]
     result = OrderedDict()
     for t in db[collection].aggregate(pipeline):

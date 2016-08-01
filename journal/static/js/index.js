@@ -12,6 +12,9 @@ $(document).ready(function () {
         if (post_text.length==0) {
             showData.text("Insert post!");
         }else{
+            if (category.length==0){
+                category="main";
+            }
             $.ajax({
                 type: 'POST',
                 url: CURRENT_COLLECTION,
@@ -65,8 +68,24 @@ $(document).ready(function () {
                             badge.text(parseInt(badge.text())+1);
                         }
                     }
+                     $('#post_text').val('');
                 }
             });
+        }
+    });
+
+    //category management in the search bar
+    $('a[cat]').click(function(){
+        var cat = $(this).attr("cat");
+        var cat_sel = $('#cat-selected');
+        var previous_cat = cat_sel.text();
+        cat_sel.text(cat);
+        if (previous_cat!="ALL" && cat=="ALL"){
+            cat_sel.removeClass("btn-info");
+            cat_sel.addClass("btn-success");
+        }else if(previous_cat=="ALL" && cat!="ALL"){
+            cat_sel.removeClass("btn-success");
+            cat_sel.addClass("btn-info");
         }
     });
 });
