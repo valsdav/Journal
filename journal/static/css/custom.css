@@ -6,6 +6,10 @@
   content: "\e900";
 }
 
+.border-right{
+    border-right: 1px solid black;
+}
+
 /**********************************
 Responsive navbar-brand image CSS
 - Remove navbar-brand padding for firefox bug workaround

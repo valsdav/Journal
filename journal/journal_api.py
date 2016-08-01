@@ -4,6 +4,7 @@ import re
 import json
 import datetime
 import logging
+from journal.queries import *
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from bson.json_util import dumps
@@ -30,8 +31,7 @@ def  add_post(collection):
     category = data['category']
     oid, tags = addPost(text,user,collection, category)
     app.logger.info('Added post: ' + oid+' '+ text[:20])
-    return jsonify({"post_created": oid,
-                    "tags": tags})
+    return get_post(collection, oid)
 
 @app.route('/journal/<collection>', methods=['DELETE'])
 def drop_collection(collection):
@@ -43,6 +43,7 @@ def get_collection_info(collection):
     return jsonify(count_tags(collection))
 
 def count_tags(collection):
+    '''This function returns the tags used in the collection'''
     pipeline = [
         {"$unwind": "$tags"},
         {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
@@ -52,6 +53,14 @@ def count_tags(collection):
     for t in db[collection].aggregate(pipeline):
         result[t['_id']] = t['count']
     return result
+
+
+def get_last_posts(collection, limit):
+    '''This function return the last post in the collection'''
+    coll = db[collection]
+    docs = [doc for doc in coll.find({},limit=limit)
+                .sort('timestamp',-1)]
+    return docs
 
 
 @app.route('/journal/<collection>/query', methods=['POST'])
@@ -83,8 +92,8 @@ def query_post(collection):
 def get_post(collection, post_id):
     '''Getting a specific post'''
     doc = db[collection].find_one({'_id':ObjectId(post_id)})
-    print(doc)
     return Response(dumps(doc), mimetype='application/json')
+
 
 @app.route('/journal/<collection>/<post_id>', methods=['DELETE'])
 def drop_post(collection, post_id):
@@ -92,11 +101,11 @@ def drop_post(collection, post_id):
     db[collection].delete_one({"_id":ObjectId(post_id)})
     return jsonify({"post_deleted": post_id})
 
+
 def addPost(text, user, collection, category):
     '''This function extracts metadata from a post
     and creates the document to insert in the db'''
     post = {
-        "text": text,
         "timestamp": datetime.datetime.utcnow(),
         "tags" : [],
         "props" : {},
@@ -107,10 +116,13 @@ def addPost(text, user, collection, category):
     p_re = re.compile(r'#(?P<prop>\w*?):(?P<value>.*?)(?=[\s#@]|$)')
     t_re = re.compile(r'#(?P<tag>.*?)(?=[\s#:]|$)')
     num_re = re.compile(r'^[\-]?[0-9]*\.?[0-9]+([eE][0-9]+)?$')
+    #final text without tags and properties
+    final_text = text
     #proprieties
     for m in p_re.finditer(text):
         prop = m.group('prop')
         value =  m.group('value')
+        final_text = final_text.replace(m.group(),'')
         if num_re.match(value):
             value = float(value)
         post['props'][prop] = value
@@ -120,8 +132,11 @@ def addPost(text, user, collection, category):
     #tags
     for t in t_re.finditer(text):
         tag = t.group('tag')
+        final_text = final_text.replace(t.group(), '')
         if tag not in post['tags']:
             post['tags'].append(t.group('tag'))
+    #adding the fixed text
+    post['text'] = final_text
     #inserting in the dictionary
     oid = db[collection].insert_one(post).inserted_id
     return (str(oid),post['tags'])

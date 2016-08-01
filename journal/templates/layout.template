@@ -11,6 +11,21 @@
 
 <title>{% block title %}{% endblock %}</title>
 
+<!-- jQuery Version 2.2.4 -->
+<script src="{{ url_for('static', filename='js/jquery-1.12.4.min.js') }}"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+<!-- Clipboard.js -->
+<script src="{{ url_for('static', filename='js/clipboard.min.js') }}"></script>
+
+<!-- Jasny.js -->
+<script src="{{ url_for('static', filename='js/jasny-bootstrap.min.js') }}"></script>
+
+<!-- Custom scripts -->
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
 <!-- Bootstrap Core CSS -->
 <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
@@ -48,7 +63,7 @@ body {
 <span class="icon-bar"></span>
 <span class="icon-bar"></span>
 </button>
-<a class="navbar-brand" href="/"><i-texla class="icon-texla fa-3x"></i-texla></a>
+<a class="navbar-brand" href="/">Journal</a>
 </div>
 <!-- Collect the nav links, forms, and other content for toggling -->
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -76,21 +91,6 @@ body {
 </footer>
 </div>
 <!-- /.container -->
-
-<!-- jQuery Version 2.2.4 -->
-<script src="{{ url_for('static', filename='js/jquery-1.12.4.min.js') }}"></script>
-
-<!-- Bootstrap Core JavaScript -->
-<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-
-<!-- Clipboard.js -->
-<script src="{{ url_for('static', filename='js/clipboard.min.js') }}"></script>
-
-<!-- Jasny.js -->
-<script src="{{ url_for('static', filename='js/jasny-bootstrap.min.js') }}"></script>
-
-<!-- Custom scripts -->
-<script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
 </body>
 
