@@ -24,14 +24,23 @@ $(document).ready(function () {
                 success: function(data){
                     //adding the post to the list
                     element = '<div class="list-group-item row">'+
-                        '<div class="col-md-9"><div class="row">'+
-                        data.text + '</div><div class="row"><div'+
-                        'class="btn-group" role="group">';
+                        '<div class="col-md-9">'+
+                            '<div class="row">'+data.text + '</div>'+
+                            '<div class="row">'+
+                                '<div class="btn-group" role="group">';
                     for (i in data.tags){
                         element +='<button type="button" class="btn btn-default">'+
                                 data.tags[i]+ '</button>';
                     }
-                    element += '</div></div><div class="col-md-3 list-group">'+
+                    element += '</div></div>'+
+                    '<div class ="row">'+
+                        '<div class="btn-group" role="group" aria-label="...">';
+                    for (j in data.props){
+                        element +='<button type="button" class="btn btn-info">'+
+                            j+'='+ data.props[j]+'</button>';
+                    }
+                    element+='</div></div></div>'+
+                    '<div class="col-md-3 list-group">'+
                         '<a href="#" class="list-group-item active">'+ data.category+
                         '</a><a href="#" class="list-group-item">' + data.user +
                         '</a></div></div>';
