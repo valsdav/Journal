@@ -25,7 +25,6 @@ def get_journals():
 def  add_post(collection):
     '''This entrypoint adds a post to a journal'''
     data = request.get_json()
-    print(data)
     text = data['text']
     user = data['user']
     category = data['category']
@@ -81,22 +80,21 @@ def query_post(collection):
     data = request.get_json()
     coll = db[collection]
     query_json = {}
-    if "tags" in data:
-        if len(data['tags'])>0:
-            query_json["tags"] = { "$all" : data['tags']}
+    query_json.update(parse_query(data['query']))
     if "user" in data:
         query_json['user'] = data['user']
     if "properties" in data:
         for p in data['properties']:
             query_json.update(p)
     if "category" in data:
-        query_json = data['category']
+        if data['category'] != "ALL":
+            query_json['category']= data['category']
     #getting limit of n. of items
     lim = data['limit']
-    app.logger.info("Query: {}".format(query_json))
     #getting all documents in descending order
     docs = [doc for doc in coll.find(query_json,limit=lim)
                 .sort('timestamp',-1)]
+    app.logger.info("Query: {}, results: ".format(query_json, len(docs)))
     return Response(dumps(docs), mimetype='application/json')
 
 

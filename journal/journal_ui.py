@@ -11,4 +11,5 @@ def welcome(collection):
             tags_dict= dict(tags),
             cats = cats,
             cats_dict = dict(cats),
+            total_posts = sum(cats.values()),
             docs= japi.get_last_posts(collection, 10))

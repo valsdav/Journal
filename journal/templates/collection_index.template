@@ -10,7 +10,7 @@
         id="post_text" name="post_text"
         placeholder="Post"></textarea>
         <textarea type="text" class="form-control" rows="1"
-        id="category" name="category"
+        id="category" name="category-input"
         placeholder="Category"></textarea>
 
         <div class="row">
@@ -21,7 +21,7 @@
             <div class="row">
                 <ul class="list-inline" id="tags-list">
                     {% for tag in tags %}
-                    <li><a class="btn btn-primary tag" href="#"
+                    <li><a class="btn btn-primary add-tag" href="#"
                         role="button" tag="{{tag}}">{{tag}}
                         <span class="badge" tag="{{tag}}">{{tags[tag]}}</span>
                     </a></li>
@@ -34,26 +34,28 @@
             <div class="row">
                 <div class="input-group">
                     <div class="input-group-btn">
-                        <button type="button" class="btn btn-success" id="cat-selected">ALL</button>
+                        <button type="button" class="btn btn-success"
+                                id="cat-selected" cat="ALL">ALL ({{total_posts}})</button>
                         <button type="button" class="btn btn-default dropdown-toggle"
                         data-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="true"> <span class="caret"></span>
                         <span class="sr-only">Toggle Dropdown</span>
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" id="cats-dropdown">
                         {% for cat in cats%}
-                        <li><a href="#" cat="{{cat}}">{{cat}}</a></li>
+                        <li><a href="#" cat="{{cat}}" class="cat-query">{{cat}} ({{cats[cat]}})</a></li>
                         {% endfor %}
                         <li role="separator" class="divider"></li>
-                        <li><a href="#" cat="ALL">ALL</a></li>
+                        <li><a href="#" cat="ALL" class="cat-query">ALL ({{total_posts}})</a></li>
                     </ul>
                     </div>
+                    <!--- text input of the search bar--->
                     <input type="text" class="form-control"
-                            aria-label="..." id="query-form">
+                            aria-label="..." id="query-text">
                 </div><!--- input closed--->
             </div> <!--- row closed--->
-            <div class="row">
-                <div class="list-group" id="show-data">
+            <div class="row"> <!--- List of posts--->
+                <div class="list-group" id="post-list">
                     {% for doc in docs%}
                     <div class="list-group-item row">
                         <div class="col-md-9">
@@ -62,15 +64,15 @@
                             </div>
                             <div class="row">
                                 <div class="btn-group" role="group" aria-label="...">
-                                    {% for tag in doc.tags%}
-                                    <button type="button" class="btn btn-default">{{tag}}</button>
+                                    {% for tag in doc.tags %}
+                                    <button type="button" class="btn btn-default query-tag">{{tag}}</button>
                                     {% endfor %}
                                 </div>
                             </div>
                             <div class ="row">
                                 <div class="btn-group" role="group" aria-label="...">
                                     {% for prop in doc.props%}
-                                    <button type="button" class="btn btn-info">{{prop}}={{doc.props[prop]}}</button>
+                                    <button type="button" class="btn btn-info query-prop">{{prop}}={{doc.props[prop]}}</button>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -84,7 +86,7 @@
                     </div>
                     {% endfor %}
                 </div><!--- list-group closed--->
-            </div><!--- row closed--->
+            </div><!--- list of posts closed--->
         </div>
     </div>
 
@@ -92,6 +94,8 @@
     var CURRENT_COLLECTION = "{{request.path}}";
     var collection_tags = {{tags_dict}};
     var categories_tags = {{cats_dict}};
+    var total_posts = {{total_posts}};
+    categories_tags['ALL']  = total_posts;
     </script>
 
     {% endblock %}
