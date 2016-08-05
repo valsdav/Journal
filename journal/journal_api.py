@@ -28,7 +28,7 @@ def  add_post(collection):
     text = data['text']
     user = data['user']
     category = data['category']
-    oid, tags = addPost(text,user,collection, category)
+    oid, tags = add_post(text,user,collection, category)
     app.logger.info('Added post: ' + oid+' '+ text[:20])
     return get_post(collection, oid)
 
@@ -39,22 +39,21 @@ def drop_collection(collection):
 
 @app.route('/journal/<collection>/info', methods=['GET'])
 def get_collection_info(collection):
-    return jsonify({"tags":count_tags(collection),
-                    "categories": count_categories(collection)})
+    return jsonify({"tags":get_tags_metadata(collection),
+                    "categories": get_categories_metadata(collection)})
 
-def count_tags(collection):
+def get_tags_metadata(collection):
     '''This function returns the tags used in the collection'''
-    pipeline = [
-        {"$unwind": "$tags"},
-        {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
-        {"$sort": OrderedDict([("count", -1), ("_id", -1)])}
-    ]
+    tags_metadata = db['journal_metadata'].find_one({"collection":collection})
+    tags = {}
+    for t in tags_metadata['tags']:
+        tags[t['tag']] = t['total_used']
     result = OrderedDict()
-    for t in db[collection].aggregate(pipeline):
-        result[t['_id']] = t['count']
+    for k in  sorted(tags, key=tags.get, reverse=True):
+        result[k] = tags[k]
     return result
 
-def count_categories(collection):
+def get_categories_metadata(collection):
     '''This function returns the categories used in the collection'''
     pipeline = [
         {"$group": {"_id": "$category", "count": {"$sum": 1}}},
@@ -128,7 +127,7 @@ def drop_post(collection, post_id):
     return jsonify({"post_deleted": post_id})
 
 
-def addPost(text, user, collection, category):
+def add_post(text, user, collection, category):
     '''This function extracts metadata from a post
     and creates the document to insert in the db'''
     post = {
@@ -163,17 +162,32 @@ def addPost(text, user, collection, category):
     #inserting in the dictionary
     oid = db[collection].insert_one(post).inserted_id
     #inserting the tags metadata
-    addTags(post['tags'], collection)
+    add_tags(post['tags'], collection)
     return (str(oid),post['tags'])
 
-def addTags(tags, collection):
+def add_tags(tags, collection):
+    '''This function updates the metadata document for the collection
+    after a new post'''
+    tags_metadata = db['journal_metadata'].find_one({"collection":collection})
+    if tags_metadata == None:
+        tags_metadata = {"collection": collection, "tags": []}
+    mtags = [tg['tag'] for tg in tags_metadata['tags']]
     for tag in tags:
-        tgs = tags.copy()
-        tgs.remove(tag)
-        tgs_dict ={"total_used":1}
-        for t in tgs:
-            tgs_dict["related_tags."+ t] = 1
-        result = db['journal_metadata'].update_one(
-                {"tag": tag, "collection":collection},
-                {"$inc": tgs_dict},
-                upsert=True)
+        if tag not in mtags:
+            tags_metadata['tags'].append({"tag": tag,
+                 "total_used": 1, "related_tags":{}})
+            mtags.append(tag)
+    for tag in tags:
+        for tgm in tags_metadata['tags']:
+            if (tag != tgm['tag']) and (tgm['tag'] in tags):
+                if tag in tgm['related_tags']:
+                    tgm['related_tags'][tag] +=1
+                else:
+                    tgm['related_tags'][tag] = 1
+            elif (tag == tgm['tag']):
+                tgm['total_used'] +=1
+
+    result = db['journal_metadata'].update_one(
+            {"collection":collection},
+            {"$set": tags_metadata},
+            upsert=True)

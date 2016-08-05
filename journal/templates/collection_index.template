@@ -56,7 +56,14 @@
             </div><!--- input closed--->
         </div> <!--- row closed--->
         <div class="row"><!---Related tags--->
-            <ul class="list-inline" id="relatedtags-list"></ul>
+            <ul class="list-inline" id="relatedtags-list">
+                {% for tag in tags %}
+                <li><a class="btn btn-primary post-tag" href="#"
+                    role="button" tag="{{tag}}">{{tag}}
+                    <span class="badge badge-query" tag="{{tag}}">{{tags[tag]}}</span>
+                </a></li>
+                {% endfor %}
+            </ul>
        </div>
         <div class="row"> <!--- List of posts--->
             <div class="list-group" id="post-list">
