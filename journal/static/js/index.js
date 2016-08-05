@@ -1,8 +1,8 @@
 $(document).ready(function () {
     //function that add a tag to the post-text
-    var tag_click = function(){
+    var tag_add_click = function(){
         var tag = $(this).attr("tag");
-        var post_text = $('#post_text')
+        var post_text = $('#post-text')
         post_text.val(post_text.val() + ' #'+ tag);
         post_text.focus();
     }
@@ -25,8 +25,8 @@ $(document).ready(function () {
     }
     //event handler for tag click in the posts. It adds
     //the tag in the search bar
-    var tag_query_click = function (){
-        var tg = $(this).text();
+    var tag_post_click = function (){
+        var tg = $(this).attr("tag");
         var query_text = $('#query-text');
         query_text.val(query_text.val() + ' ' + tg);
         current_query = query_text.val().trim();
@@ -34,11 +34,11 @@ $(document).ready(function () {
     }
 
     //adding event handler to add tags to post-test
-    $('.add-tag').click(tag_click);
+    $('.add-tag').click(tag_add_click);
     //category management in the search bar
     $('.cat-query').click(cat_query_click);
     //click of tags in the post adds the tag to the search bar
-    $('.query-tag').click(tag_query_click);
+    $('.post-tag').click(tag_post_click);
 
     //function that creates element for post
     var create_post_element = function(post){
@@ -48,8 +48,9 @@ $(document).ready(function () {
                 '<div class="row">'+
                     '<div class="btn-group" role="group">';
         for (j in post.tags){
-            element+= '<button class="btn btn-default query-tag">'+
-                        post.tags[j] + '</button>';
+            element+= '<a href="#" class="btn btn-default post-tag"'+
+                       'tag="'+post.tags[j]+'">'+
+                        post.tags[j] + '</a>';
         }
         element += '</div></div>'+
         '<div class ="row">'+
@@ -60,16 +61,17 @@ $(document).ready(function () {
         }
         element+='</div></div></div>'+
         '<div class="col-md-3 list-group">'+
-            '<a href="#" class="list-group-item active">'+ post.category+
+            '<a href="#" class="list-group-item active cat-query"'+
+            'cat="'+ post.category+ '">'+ post.category+
             '</a><a href="#" class="list-group-item">' + post.user +
             '</a></div></div>';
         return element;
     }
 
     //send data for new post
-    $('#sendButton').click(function () {
+    $('#send-button').click(function () {
         var post_list = $('#post-list');
-        var post_text = $('#post_text').val().trim();
+        var post_text = $('#post-text').val().trim();
         var category = $('#category-input').val().trim();
         if (post_text.length==0) {
             post_list.text("Insert post!");
@@ -95,10 +97,10 @@ $(document).ready(function () {
                             collection_tags[tg] = 1
                             tag_list.append('<li><a class="btn btn-primary add-tag"'+
                             'href="#" role="button" tag="'+tg + '">'+ tg +
-                            '<span class="badge" tag="'+tg +'">'+1+ '</span></a></li>');
-                            $('.add-tag[tag="'+tg+'"]').click(tag_click);
+                            ' <span class="badge badge-add" tag="'+tg +'">'+1+ '</span></a></li>');
+                            $('.add-tag[tag="'+tg+'"]').click(tag_add_click);
                         }else{
-                            var badge = $("span[tag='"+ tg+ "']");
+                            var badge = $(".badge-add[tag='"+ tg+ "']");
                             badge.text(parseInt(badge.text())+1);
                         }
                     }
@@ -116,8 +118,8 @@ $(document).ready(function () {
                                 ' ('+ categories_tags[category] + ')');
                     }
                     //empty the post_text form and category
-                    $('#post_text').val('');
-                    $('#category-input').val('');
+                    $('#post-text').val('');
+                    //$('#category-input').val('');
                     //triggering the query
                     query_data(current_query);
                 }
@@ -141,13 +143,28 @@ $(document).ready(function () {
             success: function(data){
                 var post_list = $('#post-list');
                 post_list.empty();
-                for(var i = 0; i< data.length; i++){
-                    var post = data[i];
+                var docs = data.docs;
+                var related_tags = data.related_tags;
+                for(var i = 0; i< docs.length; i++){
+                    var post =docs[i];
                     var element = create_post_element(post);
                     post_list.append(element);
                 }
+                //adding related tags
+                var tag_list = $('#relatedtags-list');
+                tag_list.empty();
+                var i = 0;
+                for (tg in related_tags){
+                    if(i==10) break;
+                    tag_list.append('<li><a class="btn btn-primary post-tag"'+
+                    'href="#" role="button" tag="'+tg + '">'+ tg +
+                    ' <span class="badge badge-query" tag="'+tg +'">'+
+                    related_tags[tg]+ '</span></a></li>');
+                    i++;
+                }
                 //adding event handler for tag in the post-list
-                $('.query-tag').click(tag_query_click);
+                $('.post-tag').click(tag_post_click);
+                $('.cat-query').click(cat_query_click);
             }
         });
     }
@@ -161,6 +178,7 @@ $(document).ready(function () {
             query_data(current_query);
         }
     });
+
 
 
 });

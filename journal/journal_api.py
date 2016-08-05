@@ -79,8 +79,9 @@ def query_post(collection):
     '''This entrypoint query a journal'''
     data = request.get_json()
     coll = db[collection]
+    query_data = parse_query(data['query'])
     query_json = {}
-    query_json.update(parse_query(data['query']))
+    query_json.update(query_data['query'])
     if "user" in data:
         query_json['user'] = data['user']
     if "properties" in data:
@@ -94,8 +95,23 @@ def query_post(collection):
     #getting all documents in descending order
     docs = [doc for doc in coll.find(query_json,limit=lim)
                 .sort('timestamp',-1)]
-    app.logger.info("Query: {}, results: ".format(query_json, len(docs)))
-    return Response(dumps(docs), mimetype='application/json')
+    #getting related_tags in order
+    rel_tags = {}
+    for doc in docs:
+        for tg in doc['tags']:
+            if tg in query_data['tags']:
+                continue
+            if tg in rel_tags:
+                rel_tags[tg] +=1
+            else:
+                rel_tags[tg] = 1
+    related_tags = OrderedDict()
+    for k in  sorted(rel_tags, key=rel_tags.get, reverse=True):
+        related_tags[k] = rel_tags[k]
+    #result object
+    result =  {"docs" : docs, "related_tags":related_tags}
+    app.logger.info("Query: {}, results: {}".format(query_json, len(docs)))
+    return Response(dumps(result), mimetype='application/json')
 
 
 @app.route('/journal/<collection>/<post_id>', methods=['GET'])
@@ -127,12 +143,10 @@ def addPost(text, user, collection, category):
     t_re = re.compile(r'#(?P<tag>.*?)(?=[\s#:]|$)')
     num_re = re.compile(r'^[\-]?[0-9]*\.?[0-9]+([eE][0-9]+)?$')
     #final text without tags and properties
-    final_text = text
     #proprieties
     for m in p_re.finditer(text):
         prop = m.group('prop')
         value =  m.group('value')
-        final_text = final_text.replace(m.group(),'')
         if num_re.match(value):
             value = float(value)
         post['props'][prop] = value
@@ -142,11 +156,24 @@ def addPost(text, user, collection, category):
     #tags
     for t in t_re.finditer(text):
         tag = t.group('tag')
-        final_text = final_text.replace(t.group(), '')
         if tag not in post['tags']:
             post['tags'].append(t.group('tag'))
     #adding the fixed text
-    post['text'] = final_text
+    post['text'] = text
     #inserting in the dictionary
     oid = db[collection].insert_one(post).inserted_id
+    #inserting the tags metadata
+    addTags(post['tags'], collection)
     return (str(oid),post['tags'])
+
+def addTags(tags, collection):
+    for tag in tags:
+        tgs = tags.copy()
+        tgs.remove(tag)
+        tgs_dict ={"total_used":1}
+        for t in tgs:
+            tgs_dict["related_tags."+ t] = 1
+        result = db['journal_metadata'].update_one(
+                {"tag": tag, "collection":collection},
+                {"$inc": tgs_dict},
+                upsert=True)
