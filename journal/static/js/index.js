@@ -50,7 +50,7 @@ $(document).ready(function () {
         var cat = $(this).attr("cat");
         var cat_sel = $('#cat-selected');
         var previous_cat = cat_sel.attr("cat");
-        cat_sel.text(cat + ' ('+ categories_tags[cat]+ ')');
+        cat_sel.text(cat);
         cat_sel.attr("cat", cat);
         if (previous_cat!="ALL" && cat=="ALL"){
             cat_sel.removeClass("btn-info");
@@ -158,6 +158,9 @@ $(document).ready(function () {
                         $('.cat-query[cat="'+category+'"]').text(category +
                                 ' ('+ categories_tags[category] + ')');
                     }
+                    categories_tags['ALL'] += 1;
+                    $('.cat-query[cat="ALL"]').text("ALL" +
+                            ' ('+ categories_tags['ALL'] + ')');
                     //empty the post_text form and category
                     $('#post-text').val('');
                     $('.add-tag').removeClass('btn-primary');
