@@ -8,7 +8,7 @@
     <div class="col-md-5">
         <textarea type="text" class="form-control" rows="10"
         id="post-text" name="post-text"
-        placeholder="Post">Ciao <span class="badge">#prova</span></textarea>
+        placeholder="Post"></textarea>
         <textarea type="text" class="form-control" rows="1"
         id="category-input" name="category-input"
         placeholder="Category"></textarea>

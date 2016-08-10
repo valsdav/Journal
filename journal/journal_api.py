@@ -1,4 +1,5 @@
 from journal import app
+from journal import config
 from flask import request, jsonify, render_template, Response
 import re
 import json
@@ -11,7 +12,7 @@ from bson.json_util import dumps
 from collections import OrderedDict
 
 #init the db client
-client = MongoClient("localhost", 27017)
+client = MongoClient(app.config["DB_HOST"], 27017)
 db = client['journal_db']
 
 
