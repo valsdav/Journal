@@ -1,10 +1,49 @@
 $(document).ready(function () {
+    //tags currently written in the p
+    var current_tags = []
+    //function that finds tags in post-text and
+    //asks for related_tags to the server metadata entrypoing
+    var mark_related_tags = function(){
+        var re = /#(.*?)(?=([\s#:]|$))/g;
+        var str = $('#post-text').val();
+        var m;
+        var tags = [];
+        while ( (m = re.exec(str)) !== null) {
+            if (m[1]!=''){
+                tags.push(m[1]);
+            }
+        }
+        for (t of tags){
+            if (tags.length != current_tags.lenght ||
+            $.inArray(t,current_tags)==-1){
+                $.ajax({
+                    type: 'POST',
+                    url: CURRENT_COLLECTION+'/metadata',
+                     data: JSON.stringify(
+                         {"method": "related_tags",
+                         "tags": tags}),
+                    contentType: "application/json",
+                    dataType: 'json',
+                    success: function(data){
+                        $('.add-tag').removeClass('btn-primary');
+                        $('.add-tag').addClass('btn-default');
+                        for (tag of data.related_tags){
+                            $('.add-tag[tag="'+tag+'"]').addClass('btn-primary');
+                        }
+                    }}
+                );
+                break;
+            }
+        }
+        current_tags = tags;
+    }
     //function that add a tag to the post-text
     var tag_add_click = function(){
         var tag = $(this).attr("tag");
-        var post_text = $('#post-text')
+        var post_text = $('#post-text');
         post_text.val(post_text.val() + ' #'+ tag);
         post_text.focus();
+        mark_related_tags();
     }
     //function to select the category in the searchbar dropdown menu
     var cat_query_click = function(){
@@ -39,6 +78,8 @@ $(document).ready(function () {
     $('.cat-query').click(cat_query_click);
     //click of tags in the post adds the tag to the search bar
     $('.post-tag').click(tag_post_click);
+    //event handler for input on post input textarea
+    $('#post-text').on("input", mark_related_tags);
 
     //function that creates element for post
     var create_post_element = function(post){
@@ -95,7 +136,7 @@ $(document).ready(function () {
                         tg = data.tags[i];
                         if (!(tg in collection_tags)){
                             collection_tags[tg] = 1
-                            tag_list.append('<li><a class="btn btn-primary add-tag"'+
+                            tag_list.append('<li><a class="btn btn-default add-tag"'+
                             'href="#" role="button" tag="'+tg + '">'+ tg +
                             ' <span class="badge badge-add" tag="'+tg +'">'+1+ '</span></a></li>');
                             $('.add-tag[tag="'+tg+'"]').click(tag_add_click);
@@ -119,6 +160,8 @@ $(document).ready(function () {
                     }
                     //empty the post_text form and category
                     $('#post-text').val('');
+                    $('.add-tag').removeClass('btn-primary');
+                    $('.add-tag').addClass('btn-default');
                     //$('#category-input').val('');
                     //triggering the query
                     query_data(current_query);
@@ -178,7 +221,5 @@ $(document).ready(function () {
             query_data(current_query);
         }
     });
-
-
 
 });

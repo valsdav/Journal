@@ -24,7 +24,9 @@
 <script src="{{ url_for('static', filename='js/jasny-bootstrap.min.js') }}"></script>
 
 <!-- Custom scripts -->
-<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/jquery.mark.min.js')}}"></script>
+<script src="{{ url_for('static', filename='js/index.js')}}"></script>
 
 <!-- Bootstrap Core CSS -->
 <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">

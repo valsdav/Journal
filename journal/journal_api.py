@@ -37,14 +37,35 @@ def drop_collection(collection):
     db[collection].drop()
     return jsonify({"journal_deleted":  collection})
 
-@app.route('/journal/<collection>/info', methods=['GET'])
+@app.route('/journal/<collection>/metadata', methods=['GET', 'POST'])
 def get_collection_info(collection):
-    return jsonify({"tags":get_tags_metadata(collection),
+    if request.method == "GET":
+        return jsonify({"tags":get_tags_metadata(collection),
                     "categories": get_categories_metadata(collection)})
+    elif request.method =="POST":
+        data = request.get_json()
+        if data['method'] == "related_tags":
+            tags_metadata = db['journal_metadata'].find_one({"collection":collection})
+            if tags_metadata == None:
+                db['journal_metadata'].insert_one(
+                        {"collection": collection, "tags": []})
+                return jsonify({"related_tags": []})
+            rel_tags = []
+            for t in tags_metadata['tags']:
+                if t['tag'] in data['tags']:
+                    for tr in t['related_tags']:
+                        if tr not in rel_tags:
+                            rel_tags.append(tr)
+            return jsonify({'related_tags': rel_tags})
+
 
 def get_tags_metadata(collection):
     '''This function returns the tags used in the collection'''
     tags_metadata = db['journal_metadata'].find_one({"collection":collection})
+    if tags_metadata == None:
+        db['journal_metadata'].insert_one(
+                {"collection": collection, "tags": []})
+        return {}
     tags = {}
     for t in tags_metadata['tags']:
         tags[t['tag']] = t['total_used']

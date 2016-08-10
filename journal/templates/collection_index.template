@@ -8,7 +8,7 @@
     <div class="col-md-5">
         <textarea type="text" class="form-control" rows="10"
         id="post-text" name="post-text"
-        placeholder="Post"></textarea>
+        placeholder="Post">Ciao <span class="badge">#prova</span></textarea>
         <textarea type="text" class="form-control" rows="1"
         id="category-input" name="category-input"
         placeholder="Category"></textarea>
@@ -22,7 +22,7 @@
         <div class="row">
             <ul class="list-inline" id="tags-list">
                 {% for tag in tags %}
-                <li><a class="btn btn-primary add-tag" href="#"
+                <li><a class="btn btn-default add-tag" href="#"
                     role="button" tag="{{tag}}">{{tag}}
                     <span class="badge badge-add" tag="{{tag}}">{{tags[tag]}}</span>
                 </a></li>
